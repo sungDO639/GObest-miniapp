@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GObest - Đặt dịch vụ nhanh</title>
+  <script src="https://zalo.me/sdk/js/miniapp/1.0.0/za.min.js"></script>
+  <style>
+    :root {
+      --gold: #FFD700;
+      --gold-light: #FFF8DC;
+      --gold-dark: #DAA520;
+      --white: #FFFFFF;
+      --black: #333333;
+      --gray: #F5F5F5;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: var(--white);
+      color: var(--black);
+      line-height: 1.6;
+    }
+    #app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    header {
+      background: linear-gradient(to right, var(--gold), var(--gold-dark));
+      color: var(--white);
+      padding: 15px 20px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon {
+      margin-right: 10px;
+      font-size: 28px;
+    }
+    .nav {
+      display: flex;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 480px;
+      background: var(--white);
+      border-top: 2px solid var(--gold);
+      z-index: 90;
+    }
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 12px;
+      color: var(--black);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .nav-item.active {
+      color: var(--gold-dark);
+      background: var(--gold-light);
+      font-weight: bold;
+    }
+    .nav-item i {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    .page {
+      display: none;
+      padding: 20px;
+      padding-bottom: 70px;
+    }
+    .page.active {
+      display: block;
+    }
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(218, 165, 32, 0.2);
+    }
+    .card-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: var(--gold-dark);
+      display: flex;
+      align-items: center;
+    }
+    .card-title i {
+      margin-right: 10px;
+    }
+    .btn {
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      text-align: center;
+      display: block;
+      width: 100%;
+      font-size: 16px;
+      margin: 15px 0;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .btn:hover {
+      background: var(--gold-dark);
+      transform: translateY(-2px);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--gold);
+      color: var(--gold-dark);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--gold-dark);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid rgba(218,165,32,0.3);
+      border-radius: 10px;
+      background: var(--white);
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--gold);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255,215,0,0.3);
+    }
+    /* Message box */
+    #message {
+      display: none;
+      background: #fff3cd;
+      color: #856404;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="logo">
+        <span class="logo-icon">🚚</span>
+        <span>GObest</span>
+      </div>
+    </header>
+    <div id="message"></div>
+
+    <!-- Home Page -->
+    <div id="homePage" class="page active">
+      <div class="card">
+        <div class="card-title"><i>🏠</i> Đặt dịch vụ nhanh</div>
+        <div class="service-card" onclick="selectService('delivery')" style="cursor:pointer; margin-bottom:12px">
+          <div style="display:flex;align-items:center;">
+            <span style="font-size:24px;margin-right:10px;">📦</span>
+            <div>
+              <div class="service-name">Giao hàng nhanh</div>
+              <div style="font-size:13px;color:#888;">Giao hàng trong 30 phút</div>
+            </div>
+          </div>
+        </div>
+        <div class="service-card" onclick="selectService('food')" style="cursor:pointer; margin-bottom:12px">
+          <div style="display:flex;align-items:center;">
+            <span style="font-size:24px;margin-right:10px;">🍔</span>
+            <div>
+              <div class="service-name">Đồ ăn</div>
+              <div style="font-size:13px;color:#888;">Giao món bạn yêu thích</div>
+            </div>
+          </div>
+        </div>
+        <div class="service-card" onclick="selectService('shopping')" style="cursor:pointer;">
+          <div style="display:flex;align-items:center;">
+            <span style="font-size:24px;margin-right:10px;">🛒</span>
+            <div>
+              <div class="service-name">Đi chợ hộ</div>
+              <div style="font-size:13px;color:#888;">Mua sắm tiện lợi</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i>📦</i> Đơn hàng hiện tại</div>
+        <div id="currentOrder">
+          <p>Bạn chưa có đơn hàng nào.</p>
+          <button class="btn" onclick="navigate('orderPage')">Đặt dịch vụ ngay</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Page -->
+    <div id="orderPage" class="page">
+      <div class="card">
+        <div class="card-title"><i>📝</i> Đặt dịch vụ</div>
+        <div class="form-group">
+          <label for="serviceType">Loại dịch vụ</label>
+          <select id="serviceType">
+            <option value="delivery">Giao hàng nhanh</option>
+            <option value="food">Đồ ăn</option>
+            <option value="shopping">Đi chợ hộ</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pickupAddress">Địa chỉ lấy hàng</label>
+          <input type="text" id="pickupAddress" placeholder="Nhập địa chỉ lấy hàng">
+        </div>
+        <div class="form-group">
+          <label for="deliveryAddress">Địa chỉ giao hàng</label>
+          <input type="text" id="deliveryAddress" placeholder="Nhập địa chỉ giao hàng">
+        </div>
+        <div class="form-group">
+          <label for="note">Ghi chú</label>
+          <textarea id="note" rows="3" placeholder="Ghi chú thêm cho tài xế..."></textarea>
+        </div>
+        <button class="btn" onclick="placeOrder()">Đặt dịch vụ</button>
+      </div>
+    </div>
+
+    <!-- Tracking Page -->
+    <div id="trackPage" class="page">
+      <div class="card">
+        <div class="card-title"><i>📍</i> Theo dõi đơn hàng</div>
+        <div id="orderTracking"></div>
+      </div>
+    </div>
+
+    <!-- Chat Page -->
+    <div id="chatPage" class="page">
+      <div class="card" style="padding:0;">
+        <div style="padding:15px; border-bottom:1px solid #f0f0f0;">
+          <strong>Chat với tài xế</strong>
+        </div>
+        <div id="chatMessages" style="height:250px; overflow-y:auto; padding:15px; background:#f5f5f5;"></div>
+        <div style="display:flex; padding:10px;">
+          <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." style="flex:1; margin-right:10px;">
+          <button class="btn" style="padding:8px 16px;" onclick="sendMessage()">Gửi</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profilePage" class="page">
+      <div class="card user-card" style="text-align:center;">
+        <div style="font-size:40px; background:var(--gold); width:100px; height:100px; margin:0 auto 20px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold;">
+          KH
+        </div>
+        <h2 id="userName">Khách hàng</h2>
+        <p id="userPhone">Đăng nhập để xem thông tin</p>
+        <button class="btn" onclick="login()">Đăng nhập bằng Zalo</button>
+        <button class="btn btn-outline" onclick="logout()">Đăng xuất</button>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav">
+      <div class="nav-item active" data-page="homePage" onclick="navigate('homePage')">
+        <span>🏠</span>Trang chủ
+      </div>
+      <div class="nav-item" data-page="orderPage" onclick="navigate('orderPage')">
+        <span>📝</span>Đặt dịch vụ
+      </div>
+      <div class="nav-item" data-page="trackPage" onclick="navigate('trackPage')">
+        <span>📍</span>Theo dõi
+      </div>
+      <div class="nav-item" data-page="chatPage" onclick="navigate('chatPage')">
+        <span>💬</span>Chat
+      </div>
+      <div class="nav-item" data-page="profilePage" onclick="navigate('profilePage')">
+        <span>👤</span>Cá nhân
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let currentUser = null;
+    let currentOrder = null;
+
+    // Helper: Hiển thị thông báo
+    function showMessage(msg) {
+      let el = document.getElementById('message');
+      if (el) {
+        el.textContent = msg;
+        el.style.display = "block";
+        setTimeout(() => { el.style.display = "none"; }, 3000);
+      } else {
+        alert(msg);
+      }
+    }
+
+    // Helper: Lưu an toàn vào localStorage
+    function safeSetLocalStorage(key, value) {
+      if (typeof localStorage === "undefined") {
+        showMessage("Trình duyệt không hỗ trợ localStorage.");
+        return false;
+      }
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (e) {
+        showMessage("Lưu dữ liệu thất bại.");
+        return false;
+      }
+    }
+    // Helper: Đọc an toàn từ localStorage
+    function safeGetLocalStorage(key) {
+      if (typeof localStorage === "undefined") return null;
+      try {
+        return localStorage.getItem(key);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Helper: Đọc user từ storage an toàn
+    function getUserFromStorage() {
+      let str = safeGetLocalStorage('gobest_user');
+      if (!str) return null;
+      try {
+        return JSON.parse(str);
+      } catch (e) {
+        localStorage.removeItem('gobest_user');
+        return null;
+      }
+    }
+    // Helper: Đọc order từ storage an toàn
+    function getOrderFromStorage() {
+      let str = safeGetLocalStorage('gobest_order');
+      if (!str) return null;
+      try {
+        return JSON.parse(str);
+      } catch (e) {
+        localStorage.removeItem('gobest_order');
+        return null;
+      }
+    }
+
+    // Navigation
+    function navigate(pageId) {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      let nav = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+      if (nav) nav.classList.add('active');
+      let pageEl = document.getElementById(pageId);
+      if (pageEl) pageEl.classList.add('active');
+      // Nếu sang page tracking, load tracking
+      if(pageId === 'trackPage') updateTracking();
+      if(pageId === 'homePage') showCurrentOrder();
+    }
+
+    // Hiển thị thông tin user lên trang cá nhân
+    function updateUserInfo() {
+      let nameEl = document.getElementById('userName');
+      let phoneEl = document.getElementById('userPhone');
+      if (currentUser) {
+        if (nameEl) nameEl.textContent = currentUser.name;
+        if (phoneEl) phoneEl.textContent = currentUser.phone || 'Chưa cập nhật';
+      } else {
+        if (nameEl) nameEl.textContent = 'Khách hàng';
+        if (phoneEl) phoneEl.textContent = 'Đăng nhập để xem thông tin';
+      }
+    }
+
+    // Đăng nhập bằng Zalo MiniApp (có kiểm tra SDK)
+    function login() {
+      if (typeof window.za === "undefined") {
+        showMessage("Chức năng này chỉ hoạt động trong Zalo MiniApp.");
+        return;
+      }
+      za.login(() => {
+        za.getProfile(res => {
+          currentUser = {
+            id: res.id,
+            name: res.name,
+            avatar: res.avatar,
+            phone: res.phone || 'Chưa cập nhật'
+          };
+          safeSetLocalStorage('gobest_user', JSON.stringify(currentUser));
+          updateUserInfo();
+          showMessage(`Chào mừng ${res.name} đến với GObest!`);
+        });
+      });
+    }
+
+    // Đăng xuất
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem('gobest_user');
+      updateUserInfo();
+      showMessage('Bạn đã đăng xuất!');
+    }
+
+    // Chọn dịch vụ ở trang chủ
+    function selectService(serviceType) {
+      let serviceSelect = document.getElementById('serviceType');
+      if(serviceSelect) serviceSelect.value = serviceType;
+      navigate('orderPage');
+    }
+
+    // Đặt dịch vụ
+    function placeOrder() {
+      if (!currentUser) {
+        showMessage("Vui lòng đăng nhập để đặt dịch vụ!");
+        navigate('profilePage');
+        return;
+      }
+      let serviceType = document.getElementById('serviceType') ? document.getElementById('serviceType').value : '';
+      let pickupAddress = document.getElementById('pickupAddress') ? document.getElementById('pickupAddress').value : '';
+      let deliveryAddress = document.getElementById('deliveryAddress') ? document.getElementById('deliveryAddress').value : '';
+      let note = document.getElementById('note') ? document.getElementById('note').value : '';
+      if (!pickupAddress || !deliveryAddress) {
+        showMessage("Vui lòng nhập đầy đủ địa chỉ!");
+        return;
+      }
+      currentOrder = {
+        id: 'GOBEST' + Math.floor(100000 + Math.random() * 900000),
+        serviceType,
+        pickupAddress,
+        deliveryAddress,
+        note,
+        status: 'Đang tìm tài xế',
+        date: new Date().toLocaleString()
+      };
+      safeSetLocalStorage('gobest_order', JSON.stringify(currentOrder));
+      showMessage(`Đơn hàng #${currentOrder.id} đã được tạo thành công!`);
+      showCurrentOrder();
+      navigate('trackPage');
+    }
+
+    // Hiển thị đơn hàng hiện tại ở trang chủ
+    function showCurrentOrder() {
+      let order = getOrderFromStorage();
+      let el = document.getElementById('currentOrder');
+      if (!el) return;
+      if (!order) {
+        el.innerHTML = `<p>Bạn chưa có đơn hàng nào.</p>
+          <button class="btn" onclick="navigate('orderPage')">Đặt dịch vụ ngay</button>`;
+        return;
+      }
+      el.innerHTML = `
+        <div class="card-title"><i>📦</i> Đơn hàng #${order.id}</div>
+        <p><b>Dịch vụ:</b> ${getServiceName(order.serviceType)}</p>
+        <p><b>Lấy hàng:</b> ${order.pickupAddress}</p>
+        <p><b>Giao tới:</b> ${order.deliveryAddress}</p>
+        <p><b>Trạng thái:</b> ${order.status}</p>
+        <button class="btn" onclick="navigate('trackPage')">Theo dõi đơn hàng</button>
+        <button class="btn btn-outline" onclick="cancelOrder()">Hủy đơn hàng</button>
+      `;
+    }
+
+    // Hủy đơn hàng
+    function cancelOrder() {
+      if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
+        localStorage.removeItem('gobest_order');
+        currentOrder = null;
+        showCurrentOrder();
+        showMessage('Đơn hàng đã được hủy.');
+        navigate('homePage');
+      }
+    }
+
+    // Theo dõi đơn hàng
+    function updateTracking() {
+      let order = getOrderFromStorage();
+      let el = document.getElementById('orderTracking');
+      if (!el) return;
+      if (!order) {
+        el.innerHTML = '<p>Bạn chưa có đơn hàng nào để theo dõi.</p>';
+        return;
+      }
+      el.innerHTML = `
+        <div><b>Mã đơn:</b> #${order.id}</div>
+        <div><b>Trạng thái:</b> ${order.status}</div>
+        <div><b>Dịch vụ:</b> ${getServiceName(order.serviceType)}</div>
+        <div><b>Lấy hàng:</b> ${order.pickupAddress}</div>
+        <div><b>Giao tới:</b> ${order.deliveryAddress}</div>
+        <div><b>Thời gian:</b> ${order.date}</div>
+        <button class="btn" onclick="navigate('chatPage')">Chat với tài xế</button>
+        <button class="btn btn-outline" onclick="cancelOrder()">Hủy đơn hàng</button>
+      `;
+    }
+
+    // Gửi tin nhắn chat (giả lập)
+    function sendMessage() {
+      let input = document.getElementById('messageInput');
+      let chatMessages = document.getElementById('chatMessages');
+      if (!input || !chatMessages) return;
+      let message = input.value.trim();
+      if (!message) return;
+      let msgDiv = document.createElement('div');
+      msgDiv.style = 'text-align:right; margin-bottom:8px; color:#333;';
+      msgDiv.textContent = message;
+      chatMessages.appendChild(msgDiv);
+      input.value = '';
+      setTimeout(() => {
+        let replyDiv = document.createElement('div');
+        replyDiv.style = 'text-align:left; margin-bottom:8px; color:#666;';
+        replyDiv.textContent = "Tài xế sẽ liên hệ với bạn sớm!";
+        chatMessages.appendChild(replyDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 900);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Tên dịch vụ tiếng Việt
+    function getServiceName(type) {
+      switch(type) {
+        case 'delivery': return 'Giao hàng nhanh';
+        case 'food': return 'Đồ ăn';
+        case 'shopping': return 'Đi chợ hộ';
+        default: return 'Dịch vụ';
+      }
+    }
+
+    // Khởi động
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load user và order từ storage
+      currentUser = getUserFromStorage();
+      currentOrder = getOrderFromStorage();
+      updateUserInfo();
+      showCurrentOrder();
+    });
+  </script>
+</body>
+</html>
